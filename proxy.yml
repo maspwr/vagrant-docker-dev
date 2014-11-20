@@ -1,0 +1,27 @@
+---
+- hosts: default
+  tasks:
+    - name: Adding Docker repository key
+      sudo: yes
+      apt_key: url="https://get.docker.io/gpg" id="A88D21E9"
+
+    - name: Adding Docker repository
+      sudo: yes
+      apt_repository: repo='deb http://get.docker.io/ubuntu docker main' update_cache=yes state=present
+
+    - name: Installing Docker, LDAP and Dependencies
+      sudo: yes
+      apt: name="{{ item }}" state=present
+      with_items:
+        - apt-transport-https
+        - lxc-docker
+        - python-pip
+        - ldap-utils
+
+    - name: Installing docker-py for ansible docker module
+      sudo: yes
+      pip: name=docker-py==0.5.3 state=present
+
+    - name: Adding vagrant user to docker group
+      sudo: yes
+      user: name=vagrant append=yes groups=docker state=present
